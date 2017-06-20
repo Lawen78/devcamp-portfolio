@@ -92,5 +92,6 @@ git commit -m 'Initial commit'
 git status
 git log
 
-git config user.name "Lawen78"
-git config user.email "postaforum@gmail.com"
+Per pulire la cache di git:
+
+git rm . -r --cached
