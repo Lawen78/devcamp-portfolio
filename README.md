@@ -95,3 +95,37 @@ git log
 Per pulire la cache di git:
 
 git rm . -r --cached
+
+
+Vado a creare un nuovo branch con:
+
+git branch -b controller-generator
+
+e verifico con:
+
+git branch
+
+Quando utilizzo lo scaffold, questo mi crea di tutto, dalla view al model al controller. La "pecca" è che a volte mi crea anche troppo ;)
+
+rails g controller Pages home about contact
+
+Ho avuto un pò di problemi, ho disinstallato rbenv che avevo precedentemente con brew e fatto gem install bundler e gem install rails e bundle install e poi lanciato il generator.
+Ho avviato il server con:
+
+rails s
+
+http://localhost:3000/pages/home
+
+Se vado a vedere le views sotto app, noterò che i files generati dallo scaffold sono molti di èiù dei 3 files creati dal controller, mentre in blogs ho la form, la edit, ecc..
+Anche il controller creato con il generator dei controller è completamente diverso dal controller generato dallo scaffold.
+Inoltre in routes.rb ho la mappatura delle RICHIESTE GET (con relative URL) con le view relative e con le action del controller (il nome è importante!!!)
+Quando ho una richiesta GET su pages/home mi si avvia la action home del controller pages ;)
+Ad esempio in home (action) potrei avere:
+
+@posts = Blog.all
+
+ovvero creo una variabile di istanza posts e accedo al metodo all di Blog che è il mio modello (presente in app/models/blog.rb)
+
+e nella view home.html.erb posso inserire:
+
+<%= @posts.inspect %>
