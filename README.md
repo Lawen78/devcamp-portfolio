@@ -219,7 +219,7 @@ Adesso aggiorno tutto su git:
 
 git status
 git add .
-git commit -m 'Added portfolio items via Resource generator"
+git commit -m 'Added portfolio items via Resource generator'
 git checkout master
 git merge resource-generator
 git push
