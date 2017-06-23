@@ -184,4 +184,14 @@ L'inspect ci darà tutte le informazioni relative al Record. Anche la Classe di 
 
 Come possiamo vedere, posso accedere dal controller di Posts anche al modello Blog.
 
-Facciamo il commit su git.
+Facciamo il commit su git ed il merge del branch sul master
+
+git add .
+
+git commit -m "Integrated skills via model generator"
+
+git checkout master
+
+git merge model-generator
+
+git push
