@@ -1,6 +1,6 @@
-# README
+# Progetto Rails 5
 
-#Per installare HOMEBREW, GNU Privacy Guard e RVM:
+## Per installare HOMEBREW, GNU Privacy Guard e RVM:
 
 Homebrew è un gestore di packages:
 
@@ -26,7 +26,7 @@ source ~/.rvm/scripts/rvm
 
 type rvm | head -n 1
 
-# RAILS Comandi lanciati:
+## RAILS Comandi lanciati:
 
 rails -h per aver l'help
 rails new DevacampPortfolio -T --database=postgresql
@@ -119,7 +119,7 @@ rails s
 
 http://localhost:3000/pages/home
 
-Se vado a vedere le views sotto app, noterò che i files generati dallo scaffold sono molti di èiù dei 3 files creati dal controller, mentre in blogs ho la form, la edit, ecc..
+Se vado a vedere le views sotto app, noterò che i files generati dallo scaffold sono molti di più dei 3 files creati dal controller, mentre in blogs ho la form, la edit, ecc..
 Anche il controller creato con il generator dei controller è completamente diverso dal controller generato dallo scaffold.
 Inoltre in routes.rb ho la mappatura delle RICHIESTE GET (con relative URL) con le view relative e con le action del controller (il nome è importante!!!)
 Quando ho una richiesta GET su pages/home mi si avvia la action home del controller pages ;)
@@ -194,4 +194,32 @@ git checkout master
 
 git merge model-generator
 
+git push
+
+## Resource Generator
+
+Vediamo la creazione tramite il resource generator. Questo strumento si pone a metà strada tra il controller generator e lo scaffolding. In routes.rb avrò la mappatura delle route come fa lo scaffolding, ma non ho le view e non ho tutte quelle view come l'edit e il form che crea lo scaffolding. Il controller viene generato ma senza nessuna action. Il resource ci genera il model come fosse un model generator.
+
+Creiamo il branch:
+
+git checkout -b resource-generator
+
+rails g resource Portfolio title:string subtitle:string body:text main_image:text thumb_image:text
+
+Ci crea un file di migrazione. un file model, un file controller, ci crea una directory per le view ma vuota(!!!).
+
+Quindi si può pensare al resource generator come uno scaffolding più "semplice".
+
+Avendo il file di migrazione, lancio il comando per eseguire e creare la relativa tabella sul db:
+
+rails db:migrate
+
+ed il nostro schema in db, è aggiornato. 
+Adesso aggiorno tutto su git:
+
+git status
+git add .
+git commit -m 'Added portfolio items via Resource generator"
+git checkout master
+git merge resource-generator
 git push
