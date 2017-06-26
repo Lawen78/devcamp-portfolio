@@ -36,6 +36,9 @@ di default rails avvia il bundle install per installare le varie gemme. Per non 
 rails s 
 (connettiti a http://localhost:3000 e avrò un errore che risolvo con il comando succ)
 rails db:create
+
+Il rails db:create mi crea due database, quello di development e quello di test, con il nome della app che sto creando, seguito da _development e _test.
+Questo comando di db:migrate probabilmente è inutile, lo faccio dopo lo scaffold qualche riga qua sotto:
 rails db:migrate
 
 Posso avviare anche con
@@ -223,3 +226,39 @@ git commit -m 'Added portfolio items via Resource generator'
 git checkout master
 git merge resource-generator
 git push
+
+## Generatori
+
+Abbiamo visto i generatori di: controller, risorsa, model e lo scaffolding. Tutto questo può essere ulteriormente customizzabile.
+
+Durante la creazione di uno scaffold, avrò la creazione anche dello stylesheet scaffolds.scss, ma per fortuna il generator è personabilizzabile. Certo, posso cancellarlo manualmente da app/assets/stylesheets.
+In config/application.rb, all'interno del modulo GeneratorApp, posso inserire le mie customizzazioni:
+
+```ruby
+module DevcampPortfolio
+  class Application < Rails::Application
+    config.generators do |g|
+      g.orm             :active_record
+      g.template_engine :erb
+      g.test_framework  :test_unit, fixture:false
+      g.stylesheets     false
+      g.javascripts     false
+  end
+end
+```
+
+Per ogni generatore sto impostando l'ORM (ad es. per cominicare con db nosql), il template_engine (potrei usare slim anzichè erb), il test_framework (ad esempio RSPEC), infine due booleani per generare i fogli di stile e javascript.
+Adesso se faccio:
+
+rails g scaffold Blog title:string
+rails db:migrate
+
+in localhost:3000/blogs
+
+non ho nessun nuovo stile aggiunto rispetto alle impostazione del broweser e nessun coffee script.
+
+Posso creare nella cartella lib, per dichiarare una risorsa esterna di customizzazione della mia app e avere ad esempio un template di stile.
+Creo la cartella templates sotto libs e sotto templates creo altre due cartelle erb e dentro erb creo la cartella scaffold e al suo interno creo il file index.html.erb.
+In questo modo faccio l'ovveride dell'index action che verrà generata dallo scaffold.
+
+Su GIT in rails/railties/lib/rails/generators/erb/scaffold trovo i file che usa rails di default.
