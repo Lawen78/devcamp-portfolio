@@ -243,6 +243,7 @@ module DevcampPortfolio
       g.test_framework  :test_unit, fixture:false
       g.stylesheets     false
       g.javascripts     false
+    end
   end
 end
 ```
@@ -262,3 +263,55 @@ Creo la cartella templates sotto libs e sotto templates creo altre due cartelle 
 In questo modo faccio l'ovveride dell'index action che verrà generata dallo scaffold.
 
 Su GIT in rails/railties/lib/rails/generators/erb/scaffold trovo i file che usa rails di default.
+
+## Sample Data
+
+Andiamo ad inserire dei dati "fake". Ad esempio:
+
+```ruby
+movies = Movie.create([{name:'Star Wars}, {name:'Lord of the Rings'}])
+Character.create(name:'Luke Skywalker')
+```
+
+sappiamo che con rails c avvio la CONSOLE e posso scrivere:
+
+```
+Blog.create!(title:'titolo del blog', body:'Questo è il corpo')
+```
+
+Prendiamo il file seeds.rb in db, utilizziamo la variabile di blocco |blog|:
+Per vedere il valore di blog fai questo esercizio:
+rails c e scrivo:
+```ruby
+10.times do |blog|
+  puts blog
+end
+```ruby
+
+```ruby
+10.times do |blog|
+  Blog.create!(
+    title: "My Blog Post #{blog}",
+    body: "Fake Body Data"
+  )
+end
+```
+
+Questo snippet di codice ci permette di creare per 10 volte un post blog. Quando uso la string interpolation ,devo usare i doppi apici (brackets).
+Una volta creato il file seeds.rb lancio il comando:
+
+rails db:setup
+
+Quello che succede è un wipe completo dei miei dati nel db, ricrea i db con i dati contenuti in seeds.rb. Ecco perchè in production non si deve fare ;)
+
+Puoi fare rails c e lanciare i comandi tipo Skill.count, Portfolio.last, Blog.all
+
+Lancia il server: rails s e vai su http://localhost:3000/pages/home
+
+devo ottenre una Homepage con i Blog Posts e le Skills
+
+Faccio il commit:
+
+git add .
+git commit -m "Created seeds file for sample data"
+git push origin portfolio-feature
