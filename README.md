@@ -337,12 +337,56 @@ Se provassi a visualizzare il tutto sul browser, ottengo un errore, non ho la vi
   <p><%= portfolio_item.title %></p>
   <p><%= portfolio_item.subtitle %></p>
   <p><%= portfolio_item.body %></p>
-  <p><%= portfolio_item.thumb_image %></p>
+  <%= image_tag portfolio_item.thumb_image unless image_tag portfolio_item.thumb_image.nil? %>
   
 <% end %>
 ```
+
+Vediamo l'uso di unless e di nil? Il secondo ritorna se la proprietà richiesta è nil, e unless verifica che ciò non lo sia.
 
 Facciamo il git status
 git add .
 git commit -m 'Integrated action for portfolio items'
 git push origin portfolio-feature
+
+## Funzionalità New e Create
+
+Con rake routes vediamo le routes dell'intero sistema, notiamo che per i GET ho il prefisso cioè un metodo a cui devo aggiungere _path e posso usarlo nel codice erb. E se ho tantissime routes?
+
+rake routes | grep portfolio
+
+per prendere solo le routes che hanno a che fare con portfolio :)
+
+La new vediamo che è una GET con /portfolios/new e la action create è qualcosa che va a dialogare con il database, e cioè persiste il modello nella tabella di riferimento.
+
+Creiamo il metodo new:
+
+```ruby
+def new
+end
+```
+
+ovviamente non basta, serve un template. Mi basta creare un file new.html.erb in portfolios in views e copiare la form che trovo in blog. Certo con alcune modifiche ;).
+Il form_for è un metodo che aspetta un argomento, in questo caso @portfolio_item ma ceh è "vuoto", giustamente. Questo perchè devo renderlo disponibile dal controller. L'istanza così com'è non esiste nel mio controller, per cui dentro la new:
+
+```ruby
+@portfolio_item = Portfolio.new
+```
+
+Ma ancora non basta. La creazione di fatto non esiste. Ho solo un rendering delle info da inserire. Devo creare il metodo create:
+
+```ruby
+def create
+  @portfolio_item = Portfolio.new(params.require(:portfolio).permit(:title, :subtitle, :body))
+
+  respond_to do |format|
+    if @portfolio_item.save
+      format.html { redirect_to portfolios_path, notice: 'Your portfolio items is now live'}
+    else
+      format.html { render :new }
+    end
+  end
+end
+```
+
+faccio il git commit.
