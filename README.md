@@ -315,3 +315,34 @@ Faccio il commit:
 git add .
 git commit -m "Created seeds file for sample data"
 git push origin portfolio-feature
+
+## Creiamo l'index action da zero
+
+Abbiamo la route della risorsa portfolio, ma il nostro controller è praticamente vuoto.
+
+```ruby
+class PortfoliosController < ApplicationController
+  def index
+    @portfolio_items = Portfolio.all
+  end
+end
+```
+
+Se provassi a visualizzare il tutto sul browser, ottengo un errore, non ho la view associata. Quindi creo il file index.html.erb nella cartella views/portfolios:
+
+```html
+<h1>Portfolio Items</h1>
+
+<% @portfolio_items.each do |portfolio_item| %>
+  <p><%= portfolio_item.title %></p>
+  <p><%= portfolio_item.subtitle %></p>
+  <p><%= portfolio_item.body %></p>
+  <p><%= portfolio_item.thumb_image %></p>
+  
+<% end %>
+```
+
+Facciamo il git status
+git add .
+git commit -m 'Integrated action for portfolio items'
+git push origin portfolio-feature
