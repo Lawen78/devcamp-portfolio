@@ -1,5 +1,13 @@
 class BlogsController < ApplicationController
   before_action :set_blog, only: [:show, :edit, :update, :destroy]
+
+  def hello
+    render plain: "Hello, world!"
+  end
+
+  def hello_html
+    render html: '<strong style="color:green;">Hello, <h1 style="display:inline;color:red">world!</h1></strong>'.html_safe
+  end
   
 # index, show, new, ... sono metodi ma che in Rails chiamiamo ACTIONS
   # GET /blogs
@@ -33,7 +41,7 @@ class BlogsController < ApplicationController
 
     respond_to do |format|
       if @blog.save
-        format.html { redirect_to @blog, notice: 'Your post is now live.' }
+        format.html { redirect_to blogs_path, notice: 'Your post is now live.' }
       else
         format.html { render :new }
       end

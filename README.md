@@ -26,7 +26,49 @@ source ~/.rvm/scripts/rvm
 
 type rvm | head -n 1
 
-## RAILS Comandi lanciati:
+## RAILS Scaffolding
+
+Lo scaffold è il comando utilizzato per la generazione di una web app completa, genera:
+
+- Model (app/models) - SINGOLARE
+- View (app/views) - Ho vari file generati e i cosiddetti file parziali
+- Controller (app/controllers) - PLURALE
+- Test
+- Migration (db/migrate) - contiene un TIMESTAMP
+- Se utilizzo SQLite3 si crea un file in db
+
+Il file di MIGRAZIONE è il file che costituisce lo SCHEMA del DATABASE e possiamo usarlo come version control del nostro database, in quanto fornisce una variazione incrementale del database.
+
+Vediamo il legame tra un file VIEW e il suo PARZIALE, prendendo ad esempio il file new.html.erb (erb=embedded ruby). Il file new è responsabile della creazione del mio modello nel database, attraverso l'utilizzo di una form (il file parziale _form.html.erb):
+
+```ruby
+<%= render 'form', blog: @blog %>
+```
+
+questo cercherà un parziale \_form (nota che non devo mettere l'underscore). La \_form utilizza una funzione helper di Rails form_for. Nota il passaggio della variabile blog che sarà inizializzata al valore della variabile di istanza @blog. Potevo chiamarla anche bloggo (ma questa è autogenerata) ovviamente devo cambiarla nei riferimenti della parziale(!!!). La variabile di istanza @blog viene passata automaticamente alla view New dal Controller dalla Action New, che la inizializza con Blog.new :)
+
+```ruby
+<%= form_for(blog) do |f| %>
+```
+
+All'interno della form_for avviene:
+
+- Il controllo se il modello presenta errori, tramite la validazione ed eventuale DIV di errore;
+- Visualizza la label e i campi di inserimento della form (costruiti in base al modello);
+- Visualizza un pulsante di INVIO per fare il POST dei dati.
+
+I dati vengono inviati all'Action CREATE del Controller. Questa Action presenta un punto importante, ovvero la definizione della funzione blog_params, in cui andiamo a definire i campi permessi, cioè i campi che dobbiamo ricevere dalla form. Questo metodo è definito nella sezione privata del controller, contraddistinta dalla parola 'private'. Il metodo Create, crea l'istanza @blog a partire dal costruttore Blog.new passando i parametri ricevuti. Entriamo poi in una if @blog.save che procede alla validazione del dato, e se ritorna true, procedo al salvataggio nel database e alla sucessiva REDIRECT\_TO:
+
+```ruby
+redirect_to blog_path(@blog)
+redirect_to @blog
+redirect_to blogs_path
+```
+
+Quando scrivo blog_path sto invocando la GET di rake routes di blog e quindi uno specifico id blog e per questo passo @blog.
+Quando passo l'oggetto @blog alla redirect_to, Rails ne determina il modello a cui fa parte e da qui l'instradamento path da utilizzare.
+Quando richiedo blogs_path sto richiedendo la route GET di tutti i blogs.
+
 
 rails -h per aver l'help
 rails new DevacampPortfolio -T --database=postgresql
@@ -51,9 +93,43 @@ rails s
 (connettiti a http://localhost:3000/blogs)
 rake routes (per vedere le routes disponibili)
 
+Abbiamo creato il nostro primo scaffold comprensivo di controller, view e model.
+Proviamo a creare una prima routes che lega la home page http://localhost:3000 ad una funzione hello del controller, per cui in blogs_controller.rb scriverò (faccio due versioni una plain/text e una html):
+
+```ruby
+def hello
+    render plain: "Hello, world!"
+  end
+
+  def hello_html
+    render html: '<strong style="color:green;">Hello, <h1 style="display:inline;color:red">world!</h1></strong>'.html_safe
+  end
+```
+
+ed in routes.rb (per il plain/text metti blogs#hello):
+
+```ruby
+root 'blogs#hello_html'
+```
+
 Le routes sono passate rispetto alle actions del controller.
 
 Ricorda che le actions (metodi) del controller sono legati alle view con il nome, quindi il nome è molto importante altrimenti avrei un errore di missing template.
+Inoltre non posso definire una action del controller con l'hyphen es: "hello-html" non è valido!
+
+Ricapitolando:
+
+- Assicurarmi che ci sia la regola di INSTRADAMENTO in routes.rb
+- Assicurarmi che ci sia la ACTION corrispondente nel CONTROLLER
+- Assicurarmi che esista la VIEW associata alla ACTION
+
+Se ciò non fosse, otterrei errori del tipo:
+
+- Errore di "No route matches"
+- Errore di tipo "Action not found"
+- Errore di tipo "Missing Template"
+
+## Rails Helper (-h)
 
 Con rails -h vedo tutte le opzioni che posso passare a rails:
 
@@ -150,7 +226,7 @@ rails g model Skill title:string percent_utilized:integer
 Potevo mettere decimal anzichè integer come tipo di dato per la percentuale, ma non scenderò a questo livello di dettaglio.
 Passiamo gli attributi del modello con il tipo del dato che conterrà.
 
-Il comando invoca ACTIVE RECORD, che crea 2 file: un migration file un un file per il modello che sarà una classe Skill che avrà una connessione diretta al database. Il file di migrazione sarà una classe che eredita da ActiveRecord::Migration. Rails inserisce sempre due attributi di timestamps (created_at e updated_at).
+Il comando invoca ACTIVE RECORD, che crea 2 file: un migration file un un file per il modello che sarà una classe Skill che avrà una connessione diretta al database. Il file di migrazione sarà una classe che eredita da ActiveRecord::Migration. Rails inserisce sempre due attributi di timestamps (created\_at e updated\_at).
 
 Ora cambiamo effettivamente il database:
 
@@ -207,7 +283,7 @@ Creiamo il branch:
 
 git checkout -b resource-generator
 
-rails g resource Portfolio title:string subtitle:string body:text main_image:text thumb_image:text
+rails g resource Portfolio title:string subtitle:string body:text main\_image:text thumb_image:text
 
 Ci crea un file di migrazione. un file model, un file controller, ci crea una directory per le view ma vuota(!!!).
 
@@ -248,7 +324,7 @@ module DevcampPortfolio
 end
 ```
 
-Per ogni generatore sto impostando l'ORM (ad es. per cominicare con db nosql), il template_engine (potrei usare slim anzichè erb), il test_framework (ad esempio RSPEC), infine due booleani per generare i fogli di stile e javascript.
+Per ogni generatore sto impostando l'ORM (ad es. per cominicare con db nosql), il template\_engine (potrei usare slim anzichè erb), il test_framework (ad esempio RSPEC), infine due booleani per generare i fogli di stile e javascript.
 Adesso se faccio:
 
 rails g scaffold Blog title:string
