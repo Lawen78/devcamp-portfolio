@@ -466,3 +466,53 @@ end
 ```
 
 faccio il git commit.
+
+# Funzione Edit
+
+Creiamo in views/portfolio il file edit.html.erb e copio tutto ciò che ho messo in new.html.erb in questo file. (BAD PRACTICES devo usare le PARTIAL!!!)
+
+Adesso definisco la action per l'UPDATE, che a differenza della NEW, parto da zero.
+
+Vediamo da rake routes | portofolios, la edit ha come URL /portfolios/:id/edit, mentre la new ho solo /portfolios/new, devo cioè passare l'oggetto del contendere :)
+
+```ruby
+ @portfolio_item = Portfolio.find(params[:id])
+```
+
+Cioè dai parametri params, vado a trovare il parametro id e faccio la find. Con lo scaffold ho qualcosa di leggermente diverso, in quanto ho un metodo privato set_blog (prendendo lo scaffold di blog).
+
+Prova a lanciare la console: rails c
+
+Posso lanciare come comando il find: Portfolio.find(5) lancia la query:
+
+```
+Portfolio Load (23.9ms)  SELECT  "portfolios".* FROM "portfolios" WHERE "portfolios"."id" = $1 LIMIT $2  [["id",
+10], ["LIMIT", 1]]
+```
+
+Lanciamo il server con rails s e andiamo su: http://localhost:3000/portfolios/5/edit
+
+Come vedi mi si apre la form compilata con i dati del Portfolio con id uguale a 5 e ciò è possibile con il form_for e la mappatura che faccio con i campi e i campi del database. E se provassi a cambiare un campo da :title a :title_two e salvassi? Non funziona più perchè questo :title è trattato come un metodo che mappa il nome con il nome del campo che ho nel database (attribute lookup method). I due punti (colon) sono l'oggetto che indica un Symbol in Ruby. Un simbolo assomiglia ad una variabile ma è prefissato dalla colon. Sono garantiti unici. E' il più semplice oggetto che esista in Ruby.
+
+La nostra update ancora non funziona perchè il metodo update non esiste nel nostro controller, prova a cliccare il pulsante update:
+
+The action 'update' could not be found for PortfoliosController
+
+Creo il metodo update nel controller:
+
+```ruby
+def update
+    respond_to do |format|
+      if @@portfolio_item.update(params.require(:portfolio).permit(:title, :subtitle, :body))
+        format.html { redirect_to portfolios_path, notice: 'The record successfully update.'}
+      else
+        format.html { render :edit }
+  end
+```
+
+come vedi, la prima cosa è che duplico la parte dei params.require rispetto al metodo create, ecco perchè lo scaffold invece genererebbe un metodo privato portofolio_params (vedi blog_params nel controller di blog). Sempre nel blog controller vediamo che ho un befor_action per l'update che richiama il metodo set_blog, per questo devo aggiungere:
+
+```ruby
+  def update
+    @portfolio_item = Portfolio.find(params[:id])
+```
