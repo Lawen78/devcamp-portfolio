@@ -606,3 +606,56 @@ e in show potrei fare:
   end
 %>
 ```
+
+## Abilità di cancellazione (DESTROY)
+
+Lanciamo la rails console con rails c e creiamo una variabile portfolio pari all'ultimo Portfolio:
+
+```
+portfolio = Portfolio.last
+```
+
+Per cancellare posso fare semplicemente:
+
+```
+portfolio.delete
+```
+
+oppure
+
+```
+portfolio.destroy
+```
+
+avviene lo stesso processo, cioè il SQL è il medesimo. Perchè avere due processi? Se noti, il destroy è inserito all'interno di una sezione BEGIN - COMMIT.
+Dalla documentazione di Ruby, possiamo leggere che la delete è un comando SQL Delete a cui non segue nessuna CALLBACK. A questo punto del corso potrei ancora non apprezzare questa cosa e cioè la differenza che invece la Destroy, che fa il delete della row nel database, ma che esegue una serie di CALLBACK. Posso avere ad es. una callback di before_destroy per eseguire delle validazioni, che se ritorna false, posso fare l'abord della destroy.
+Delete: cancella senza curarmi di validazioni o altre azioni di callback.
+Destroy: cancella ma accertandomi prima e dopo tramite delle callback.
+
+Il metodo destroy, che creo nel controller, non ha bisogno della rispettiva view.
+L'azione destroy ovviamente ha bisogno di conoscere quale oggetto deve eliminare:
+
+```ruby
+def destroy
+  # Trovo l'oggetto di interesse
+  @portfolio_item = Portfolio.find(params[:id])
+
+  # Distruggo/Cancello il record
+  @portfolio_item.destroy
+
+  # Faccio il redirect
+  respond_to do |format|
+    format.html { redirect_to portfolios_url, notice: 'Portfolio eliminato.'}
+  end
+end
+```
+
+e adesso devo inserire il link per richiamare questa action nell'index.html.erb:
+
+```ruby
+<%= link_to "Delete", portfolio_path(portfolio_item), method: :delete, data: {confirm: "Sicuro? di cancellare  #{portfolio_item.title}" } %>
+```
+
+vediamo che chiamo il metodo :delete (e non destroy) e richiamo un popup javascript con il confirm.
+Se fai il rake routes, il verb DELETE ha un url uguale a quello della GET ecco perchè ho usato portfolio_path similmente alla GET per fare lo SHOW di un solo item.
+Fai attenzione che l'interpolazione di stringa in ruby si fa mettendo la stringa tra doppi apici e inserendo l'oggetto ruby all'interno di #{}.

@@ -23,6 +23,19 @@ class PortfoliosController < ApplicationController
     end
   end
 
+  def destroy
+    # Trovo l'oggetto di interesse
+    @portfolio_item = Portfolio.find(params[:id])
+
+    # Distruggo/Cancello il record
+    @portfolio_item.destroy
+
+    # Faccio il redirect
+    respond_to do |format|
+      format.html { redirect_to portfolios_url, notice: 'Portfolio eliminato.'}
+    end
+  end
+
   def new
     @portfolio_item = Portfolio.new
   end
