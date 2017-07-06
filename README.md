@@ -513,6 +513,78 @@ def update
 come vedi, la prima cosa è che duplico la parte dei params.require rispetto al metodo create, ecco perchè lo scaffold invece genererebbe un metodo privato portofolio_params (vedi blog_params nel controller di blog). Sempre nel blog controller vediamo che ho un befor_action per l'update che richiama il metodo set_blog, per questo devo aggiungere:
 
 ```ruby
-  def update
-    @portfolio_item = Portfolio.find(params[:id])
+def update
+  @portfolio_item = Portfolio.find(params[:id])
+```
+
+Andiamo ad aggiungere il link all'Edit nell'index.html.erb della view di portfolio:
+
+```ruby
+<%= link_to "Edit", edit_portfolio_path(portfolio_item.id) %>
+```
+
+E' meglio togliere il riferimento a id: 
+
+il nostro edit.html.erb avrà anche il back: edit_portfolio_path(portfolio_item)
+
+```ruby
+...
+<%= link_to "Back", portfolios_path %>
+```
+
+## Il metodo SHOW
+
+Prendendo il controller blog creato con lo scaffold, possiamo vedere che il metodo show è un metodo vuoto. In realtà la prima riga del controller ci dice che per lo show (come per altri metodi), dobbiamo richiamare prima (before) il metodo privato set_blog a partire dal parametro id.
+Il metodo show deve essere capace quindi di prelevare l'attuale portolio_item a cui ho cliccato dall'elenco portofolio di index.html.erb, e passarlo alla view show.html.erb:
+
+```ruby
+def show
+  @portfolio_item = Portfolio.find(params[:id])
+end
+```
+
+Adesso devo rendere cliccabile il titolo, per cui nella index.html.erb della view di portfolio posso fare:
+
+```ruby
+<p><%= link_to portfolio_item.title, portfolio_path(portfolio_item) %></p>
+```
+oppure, come fatto per l'EDIT:
+
+```ruby
+<p><%= link_to portfolio_item.title, portfolio_path(portfolio_item.id) %></p>
+```
+
+o meglio ancora, togliendo l'id in quanto rails lo prenderà automaticamente, ed è meglio così perchè meno codice meno potenziali errori:
+
+```ruby
+<p><%= link_to portfolio_item.title, portfolio_item %></p>
+```
+
+Così facendo però otterrò l'errore di "MISSING TEMPLATE", in quanto devo costruire il mio show.html.erb:
+
+```ruby
+<h1>SHOW</h2>
+<%= @portfolio_item %>
+```
+
+Tanto per provare. Come vedi mi stampa l'oggetto è l'indirizzo di memoria, che non mi è poi così tanto utile :). Proviamo a fare un INSPECT:
+
+```ruby
+<h1>SHOW</h2>
+<%= @portfolio_item.inspect %>
+```
+
+Ispirandomi dallo show.html.erb di blog, costruisco il mio show:
+
+```ruby
+<%= image_tag  @portfolio_item.main_image %>
+
+<h1><%= @portfolio_item.title %></h1>
+
+<em><%= @portfolio_item.subtitle %></em>
+
+<p><%= @portfolio_item.body %></p>
+
+<%= link_to 'Edit', edit_portfolio_path(@portfolio_item) %> |
+<%= link_to 'Back', portfolios_path %>
 ```
