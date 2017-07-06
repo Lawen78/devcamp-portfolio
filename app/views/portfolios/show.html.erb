@@ -1,4 +1,10 @@
-<%= image_tag  @portfolio_item.main_image %>
+<%=  
+  unless @portfolio_item.main_image.nil?  
+    image_tag  @portfolio_item.main_image
+  else
+    'Nessuna Immagine Caricata'
+  end
+%>
 
 <h1><%= @portfolio_item.title %></h1>
 

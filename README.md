@@ -588,3 +588,21 @@ Ispirandomi dallo show.html.erb di blog, costruisco il mio show:
 <%= link_to 'Edit', edit_portfolio_path(@portfolio_item) %> |
 <%= link_to 'Back', portfolios_path %>
 ```
+
+E se avessi un portfolio senza immagine? Potrei ottenere un errore del tipo "undefined method main_image" for nil:NilClass e cioè ho uno o più record senza immagine oppure "ArgumentError in Portfolios#show" "nil is not a valid asset source". Apro la rails console con: rails c e faccio:
+
+```
+Portfolio.where(main_image: nil)
+```
+
+e in show potrei fare:
+
+```ruby
+<%=  
+  unless @portfolio_item.main_image.nil?  
+    image_tag  @portfolio_item.main_image
+  else
+    'Nessuna Immagine Caricata'
+  end
+%>
+```
