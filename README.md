@@ -659,3 +659,33 @@ e adesso devo inserire il link per richiamare questa action nell'index.html.erb:
 vediamo che chiamo il metodo :delete (e non destroy) e richiamo un popup javascript con il confirm.
 Se fai il rake routes, il verb DELETE ha un url uguale a quello della GET ecco perchè ho usato portfolio_path similmente alla GET per fare lo SHOW di un solo item.
 Fai attenzione che l'interpolazione di stringa in ruby si fa mettendo la stringa tra doppi apici e inserendo l'oggetto ruby all'interno di #{}.
+
+## Custom Routing
+
+Ogni volta che modifico il file routes.rb devo riavviare il server rails.
+Prova a cambiare la get 'pages/home' con:
+
+```ruby
+root to: 'pages#home'
+```
+
+Anzichè avere pages/about voglio un URL solo con about:
+
+```ruby
+get 'about', to: 'pages#about'
+get 'contact', to: 'pages#contact'
+```
+
+Facendo il rake routes noto che ho about e contact e non più pages/about e pages/contact:
+
+```
+about GET    /about(.:format)               pages#about
+contact GET    /contact(.:format)             pages#contact
+```
+
+Costruiamo qualcosa di completamente custom, in realtà posso scrivere 'about-me' e mapparlo all'action about:
+
+```ruby
+get 'about-me', to: 'pages#about'
+get 'contact', to: 'pages#contact'
+```
