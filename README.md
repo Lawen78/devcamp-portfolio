@@ -689,3 +689,63 @@ Costruiamo qualcosa di completamente custom, in realtà posso scrivere 'about-me
 get 'about-me', to: 'pages#about'
 get 'contact', to: 'pages#contact'
 ```
+
+Vedi anche: http://guides.rubyonrails.org/routing.html
+
+La parola chiave resources ci permette di dichiarare velocemente gli instradamenti comuni per un dato controller, senza dove dichiarare le routes per  le azioni di index,show, new, edit, create, update e destroy, ma farlo con una singola riga di codice.
+I metodi (VERB) dell'HTTP sono: GET, POST, PATCH, PUT, DELETE. Ognuno di essi rappresenta una richiesta ad una specifica risorsa, come ad es.:
+
+```
+DELETE /ITEM/12
+```
+
+questo attiverà il resources per :items:
+
+```
+resources :items
+```
+
+e rails invierà il tutto alla ACTION DESTROY del controller ITEM con id pari a 17 in PARAMS.
+
+Quindi in rails abbiamo una mappatura completa tra i VERBs HTTP e le URLs e le ACTION del Controller. Questa mappatura, per convenzione, è associata alla mappatura CRUD delle operazioni al database.
+
+HTTP Verb	Path	Controller#Action	Used for
+GET	/photos	photos#index	display a list of all photos
+GET	/photos/new	photos#new	return an HTML form for creating a new photo
+POST	/photos	photos#create	create a new photo
+GET	/photos/:id	photos#show	display a specific photo
+GET	/photos/:id/edit	photos#edit	return an HTML form for editing a photo
+PATCH/PUT	/photos/:id	photos#update	update a specific photo
+DELETE	/photos/:id	photos#destroy	delete a specific photo
+
+Rails ci fornisce degli URL Helpers, ovvero delle route che posso utilizzare nel mio controller e che ho già usato prima, con il prefisso _path.
+Posso anche mappare una singola risorsa esplicitando il controller e usare il Symbol per individuare l'action:
+
+```ruby
+  get 'contact', to: :contact, controller: 'pages'
+```
+
+La resources portfolios mi crea un URL per lo show con il plurale (vedi da rake routes): portfolios/:id
+
+GET    /portfolios/:id(.:format)       portfolios#show
+
+Posso fare una eccezione per avere il singolare:
+
+```ruby
+  resources :portfolios, except: [:show]
+  get 'portfolio/:id', to: 'portfolios#show'
+```
+
+GET    /portfolio/:id(.:format)       portfolios#show
+
+Se provo a lanciare rails s e dall'elenco dei portfolio vado ad uno specifico portfolio, ho un errore di routing perchè devo andare a sistemare la index.html.erb della view di portfolio. Questo perchè non funziona più portfolio_path. Ne devo creare uno custom. Ma prima di fixare portfolio_path, devo inserire un as: nella route:
+
+```ruby
+  get 'portfolio/:id', to: 'portfolios#show', as: 'portfolio_show'
+```
+
+e ora posso sistemare l'index.html.erb:
+
+```html
+<p><%= link_to portfolio_item.title, portfolio_show_path(portfolio_item) %></p>
+```
