@@ -749,3 +749,97 @@ e ora posso sistemare l'index.html.erb:
 ```html
 <p><%= link_to portfolio_item.title, portfolio_show_path(portfolio_item) %></p>
 ```
+
+# Friendly Routes
+
+Include la gem di frindly_id e faccio il bundle install. Dopodichè che il file di migration con rails generate friendly_id e ottengo un nuovo file initializer sotto app->config->initializer dove posso fare delle modifiche. Dopodichè faccio il rails db:migrate. Non devo fare lo scaffold in quanto noi abbiamo già la nostra tabella Blog a cui dobbiamo applicare lo slug.
+Devo fare una modifica alla tabella e lo faccio tramite una migrazione: rails g migration add_slug_to_blogs. Il nome è molto importante in quanto se metto 'add' Rails "capisce" che sto aggiungendo qualcosa 'to' alla tabella. Per cui il comando completo sarà:
+
+rails g migration add_slug_to_blogs slug:string:uniq
+
+Potevo usare anche la CamelCase Notation: AddSlugToBlogs (il file veniva rinominato con la Snake Case).
+
+Adesso lancio rails db:migrate e nello SCHEMA avrò un nuovo campo "slug" in "blogs" insieme ad un file indice.
+
+Ora devo cambiare il model del mio Blog così:
+
+```ruby
+class Blog < ApplicationRecord
+  extend FriendlyId
+  friendly_id :title, use: :slugged
+end
+```
+In questo modo genero lo slug a partire dal title.
+
+Apriamo la console con rails c e lancio il comando:
+
+Blog.create!(title: "My great title", body: "test body!!!")
+
+e vediamo che la INSERT INTO sarà:
+
+```
+INSERT INTO "blogs" ("title", "body", "created_at", "updated_at", "slug") VALUES ($1, $2, $3, $4, $5) RETURNING "id"  [["title", "My great title"], ["body", "test body!!!"], ["created_at", "2017-09-06 13:43:14.463866"], ["updated_at", "2017-09-06 13:43:14.463866"], ["slug", "my-great-title"]]
+```
+
+dove si vede chiaramente la generazione del campo slug. Se rilanciassi lo stesso comando, lo slug viene generato con un hash:
+
+```
+SQL (0.4ms)  INSERT INTO "blogs" ("title", "body", "created_at", "updated_at", "slug") VALUES ($1, $2, $3, $4, $5) RETURNING "id"  [["title", "My great title"], ["body", "test body!!!"], ["created_at", "2017-09-06 13:44:27.482272"], ["updated_at", "2017-09-06 13:44:27.482272"], ["slug", "my-great-title-a98b57db-1c49-473d-8646-12ec2af6c6c9"]]
+```
+ 
+ Adesso devo inserire il friendly nel controller, dove devo aggiungere il metodo friendly prima del find nel metodo set_blog.
+
+ Sempre da rails c lancio Blog.first vedo che il primo blog che avevo creato ha lo slug a nil. Quello che posso fare è Blog.find_each(&:save) che trova ogni singolo blog e lo risalva e quindi genera uno slug. La sintassi è strana? Serve per passare un blocco (block), passo un metodo al blocco, itero per ogni blog e chiamo la save.
+
+ ---
+
+ Adesso vogliamo gestire uno stato del blog, del tipo in bozz o pubblicato. Dovrò aggiungere quindi un campo che lo rappresenti sullo schema e quindi fare una migrazione. Per rappresentare uno stato è ottima come struttura dati una enumerazione. Lo stato sarà un integer e avrà uno stato di default:
+
+ rails g migration AddPostStatusToBlogs status:integer
+
+ apro il file di migrazione appena generato e aggiungo un default:
+
+```ruby
+add_column :blogs, :status, :integer, default: 0
+```
+
+Lancio il rails db:migrate che mi aggiunge il campo nello schema.
+
+Vado ad inserire la enumerazione nella classe del modello Blog:
+
+```ruby
+class Blog < ApplicationRecord
+  enum status: { draft: 0, published: 1}
+```
+
+Adesso in rails c vado a creare un Blog:
+
+Blog.create!(title:'Prova enum',body:'Bodyyyyy1!!!')
+
+e noto che ho lo status in draft:
+
+=> #<Blog id: 22, title: "Prova enum", body: "Bodyyyyy1!!!", created_at: "2017-09-06 14:20:40", updated_at: "2017-09-06 14:20:40", slug: "prova-enum", status: "draft">
+
+Per cambiare quest'ultimo blog post in published scrivo:
+
+Blog.last.published!
+
+se scrivessi:
+
+Blog.published
+
+ottengo tutti i blog published
+
+Blog.published.count
+
+ottengo il numero
+
+Blog.first.published!
+
+Blog.published.count
+
+ottengo 2
+
+Ho quindi un metodo published (e un draft) :)
+Quindi le enum sono belle potenti :D
+
